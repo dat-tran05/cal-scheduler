@@ -312,7 +312,7 @@ export function AvailabilityList({
       </CardHeader>
 
       <CardContent className="flex-1 overflow-hidden p-0">
-        <div className="h-full overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400">
+        <div className="h-full overflow-y-auto p-4 pb-0 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400">
           <div className="space-y-3">
             {filteredAndSortedSlots.map((slot) => {
               const slotKey = `${slot.date}-${slot.startTime}`;
