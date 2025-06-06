@@ -29,31 +29,6 @@ export const metadata: Metadata = {
       ? "https://calscheduler.vercel.app"
       : "http://localhost:3000"
   ),
-  openGraph: {
-    title: "Cal-Scheduler - Find Your Perfect Time Slots",
-    description:
-      "Cal-Scheduler intelligently finds your available time slots by seamlessly integrating with your Google Calendar.",
-    url: "/",
-    siteName: "Cal-Scheduler",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Cal-Scheduler - Smart Calendar Management Tool",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Cal-Scheduler - Find Your Perfect Time Slots",
-    description:
-      "Cal-Scheduler intelligently finds your available time slots by seamlessly integrating with your Google Calendar.",
-    images: ["/og-image.png"],
-    creator: "@your_twitter_handle", // Replace with your actual Twitter handle
-  },
   robots: {
     index: true,
     follow: true,
