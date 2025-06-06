@@ -138,8 +138,8 @@ export function AvailabilityList({
 
   if (loading) {
     return (
-      <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg shadow-slate-200/20 h-full">
-        <CardHeader className="border-b border-slate-100 bg-white/60 backdrop-blur-sm">
+      <Card className="bg-white/95 backdrop-blur-md border-2 border-slate-300/70 shadow-xl shadow-slate-200/30 h-full">
+        <CardHeader className="border-b-2 border-slate-200/80 bg-white/80 backdrop-blur-md">
           <CardTitle className="flex items-center text-slate-800">
             <div className="relative">
               <CalendarIcon className="mr-3 h-5 w-5 text-blue-600 animate-pulse" />
@@ -171,8 +171,8 @@ export function AvailabilityList({
 
   if (slots.length === 0) {
     return (
-      <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg shadow-slate-200/20 h-full">
-        <CardHeader className="border-b border-slate-100 bg-white/60 backdrop-blur-sm">
+      <Card className="bg-white/95 backdrop-blur-md border-2 border-slate-300/70 shadow-xl shadow-slate-200/30 h-full">
+        <CardHeader className="border-b-2 border-slate-200/80 bg-white/80 backdrop-blur-md">
           <CardTitle className="flex items-center text-slate-800">
             <CalendarIcon className="mr-3 h-5 w-5 text-blue-600" />
             <span className="text-lg font-semibold">Available Time Slots</span>
@@ -198,13 +198,13 @@ export function AvailabilityList({
   }
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg shadow-slate-200/20 h-full flex flex-col transition-all duration-200 hover:shadow-xl hover:shadow-slate-200/30">
-      <CardHeader className="border-b border-slate-100 bg-white/60 backdrop-blur-sm flex-shrink-0">
+    <Card className="bg-white/95 backdrop-blur-md border-2 border-slate-300/70 shadow-xl shadow-slate-200/30 h-full flex flex-col transition-all duration-200 hover:shadow-2xl hover:shadow-slate-200/40">
+      <CardHeader className="border-b-2 border-slate-200/80 bg-white/80 backdrop-blur-md flex-shrink-0">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center">
-            <div className="relative">
-              <CalendarIcon className="mr-3 h-5 w-5 text-blue-600" />
-              <Sparkles className="absolute -top-1 -right-1 h-3 w-3 text-emerald-500" />
+            <div className="flex items-center mr-3">
+              <CalendarIcon className="h-5 w-5 text-blue-600" />
+              <Sparkles className="ml-1 h-4 w-4 text-emerald-500" />
             </div>
             <div>
               <span className="text-lg font-semibold text-slate-800">
@@ -312,7 +312,7 @@ export function AvailabilityList({
       </CardHeader>
 
       <CardContent className="flex-1 overflow-hidden p-0">
-        <div className="h-full overflow-y-auto p-4">
+        <div className="h-full overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400">
           <div className="space-y-2">
             {filteredAndSortedSlots.map((slot) => {
               const slotKey = `${slot.date}-${slot.startTime}`;

@@ -153,7 +153,7 @@ export default function Dashboard() {
   // Loading state
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="text-center">
           <div className="relative">
             <CalendarIcon className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
@@ -170,7 +170,7 @@ export default function Dashboard() {
   // Not authenticated
   if (!session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="text-center">
           <h1 className="text-3xl font-bold mb-4 text-slate-800">
             Access Denied
@@ -187,7 +187,7 @@ export default function Dashboard() {
   // Error state
   if (calendarsError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <Header />
         <main className="h-[calc(100vh-4rem)] flex items-center justify-center">
           <div className="text-center py-8">
@@ -207,27 +207,27 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 overflow-hidden">
       <Header />
 
       {/* Main Layout */}
       <div className="flex h-[calc(100vh-4rem)]">
         {/* Resizable Sidebar */}
         <div
-          className={`relative bg-white/70 backdrop-blur-sm border-r border-slate-200/60 transition-all duration-300 ease-in-out ${
+          className={`relative bg-white/90 backdrop-blur-md border-r-2 border-slate-300/80 shadow-xl transition-all duration-300 ease-in-out ${
             sidebarCollapsed ? "w-0 overflow-hidden" : ""
           }`}
           style={{ width: sidebarCollapsed ? 0 : sidebarWidth }}
         >
           {/* Sidebar Header */}
-          <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-slate-200/60 px-6 py-4">
+          <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b-2 border-slate-300/60 px-6 py-4 shadow-sm">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-800">Controls</h2>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 hover:bg-slate-200/60"
               >
                 <PanelLeftClose className="h-4 w-4" />
               </Button>
@@ -235,7 +235,7 @@ export default function Dashboard() {
           </div>
 
           {/* Sidebar Content */}
-          <div className="h-[calc(100%-4rem)] overflow-y-auto">
+          <div className="h-[calc(100%-4rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
             <div className="p-6 space-y-6">
               {/* Calendar Selector */}
               <CalendarSelector
@@ -269,12 +269,12 @@ export default function Dashboard() {
 
         {/* Collapsed Sidebar Toggle */}
         {sidebarCollapsed && (
-          <div className="w-12 bg-white/70 backdrop-blur-sm border-r border-slate-200/60 flex items-start justify-center pt-4">
+          <div className="w-12 bg-white/95 backdrop-blur-md border-r-2 border-slate-300/80 shadow-lg flex items-start justify-center pt-4">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSidebarCollapsed(false)}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 hover:bg-slate-200/60"
             >
               <PanelLeftOpen className="h-4 w-4" />
             </Button>
@@ -282,8 +282,8 @@ export default function Dashboard() {
         )}
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-hidden">
-          <div className="h-full p-6">
+        <div className="flex-1 overflow-hidden bg-white/50 backdrop-blur-sm">
+          <div className="h-full p-6 overflow-hidden">
             <AvailabilityList
               slots={availableSlots}
               loading={calculatingAvailability}

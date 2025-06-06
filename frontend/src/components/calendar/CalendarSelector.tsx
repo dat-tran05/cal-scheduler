@@ -61,7 +61,7 @@ export function CalendarSelector({
 
   if (loading) {
     return (
-      <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg shadow-slate-200/20">
+      <Card className="bg-white/95 backdrop-blur-md border-2 border-slate-300/70 shadow-xl shadow-slate-200/30">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center text-slate-800">
             <CalendarIcon className="mr-3 h-5 w-5 text-blue-600" />
@@ -86,7 +86,7 @@ export function CalendarSelector({
   }
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg shadow-slate-200/20 transition-all duration-200 hover:shadow-xl hover:shadow-slate-200/30">
+    <Card className="bg-white/95 backdrop-blur-md border-2 border-slate-300/70 shadow-xl shadow-slate-200/30 transition-all duration-200 hover:shadow-2xl hover:shadow-slate-200/40 hover:border-slate-400/80">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center">

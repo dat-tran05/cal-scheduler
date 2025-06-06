@@ -151,7 +151,7 @@ export function TimeRangeSelector({
   };
 
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg shadow-slate-200/20 transition-all duration-200 hover:shadow-xl hover:shadow-slate-200/30">
+    <Card className="bg-white/95 backdrop-blur-md border-2 border-slate-300/70 shadow-xl shadow-slate-200/30 transition-all duration-200 hover:shadow-2xl hover:shadow-slate-200/40 hover:border-slate-400/80">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center text-slate-800">
           <CalendarDays className="mr-3 h-5 w-5 text-blue-600" />
@@ -207,11 +207,13 @@ export function TimeRangeSelector({
             <Clock className="h-4 w-4 text-blue-600" />
             <h4 className="text-sm font-medium text-slate-700">Custom Range</h4>
           </div>
-          <div className="p-3 rounded-lg border border-slate-200 bg-slate-50/30">
-            <DateRangePicker
-              onUpdate={handleCustomRangeUpdate}
-              className="w-full"
-            />
+          <div className="p-3 rounded-lg border-2 border-slate-300/70 bg-slate-50/60 overflow-hidden shadow-sm">
+            <div className="w-full max-w-full overflow-hidden">
+              <DateRangePicker
+                onUpdate={handleCustomRangeUpdate}
+                className="w-full max-w-full [&_[data-testid=date-range-picker]]:max-w-full [&_.react-day-picker]:max-w-full [&_.react-day-picker]:scale-90 [&_.react-day-picker]:origin-top-left"
+              />
+            </div>
             {!selectedPreset && (
               <p className="text-xs text-slate-500 mt-2 text-center">
                 Using custom date range
