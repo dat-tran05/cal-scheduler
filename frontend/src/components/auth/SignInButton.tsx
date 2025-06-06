@@ -3,13 +3,22 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { LogIn, LogOut, Calendar } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export function SignInButton() {
+interface SignInButtonProps {
+  size?: "default" | "sm" | "lg" | "icon";
+  className?: string;
+}
+
+export function SignInButton({
+  size = "default",
+  className,
+}: SignInButtonProps) {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
     return (
-      <Button disabled>
+      <Button disabled size={size} className={className}>
         <Calendar className="mr-2 h-4 w-4" />
         Loading...
       </Button>
@@ -23,7 +32,7 @@ export function SignInButton() {
           <p className="font-medium">{session.user?.name}</p>
           <p className="text-muted-foreground">{session.user?.email}</p>
         </div>
-        <Button variant="outline" onClick={() => signOut()}>
+        <Button variant="outline" onClick={() => signOut()} size={size}>
           <LogOut className="mr-2 h-4 w-4" />
           Sign Out
         </Button>
@@ -34,7 +43,8 @@ export function SignInButton() {
   return (
     <Button
       onClick={() => signIn("google")}
-      className="bg-blue-600 hover:bg-blue-700"
+      size={size}
+      className={cn("bg-blue-600 hover:bg-blue-700 rounded-full", className)}
     >
       <LogIn className="mr-2 h-4 w-4" />
       Sign in with Google
