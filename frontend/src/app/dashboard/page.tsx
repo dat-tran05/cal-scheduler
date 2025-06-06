@@ -18,8 +18,13 @@ import {
   fetchEventsFromCalendar,
 } from "@/lib/google-calendar";
 import { calculateAvailability } from "@/lib/availability";
-import { Calendar as CalendarIcon } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react";
 import { FilterOptions, AvailableSlot, CalendarEvent } from "@/types/calendar";
+import { Button } from "@/components/ui/button";
 
 // Default filters
 const DEFAULT_FILTERS: FilterOptions = {
@@ -34,6 +39,10 @@ const DEFAULT_FILTERS: FilterOptions = {
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
+
+  // Layout state
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(384); // 24rem default
 
   // State
   const [selectedCalendarIds, setSelectedCalendarIds] = useState<string[]>([]);
@@ -119,13 +128,40 @@ export default function Dashboard() {
     calculateAvailabilitySlots,
   ]);
 
+  // Resize handler for sidebar
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = Math.max(
+        320,
+        Math.min(600, startWidth + e.clientX - startX)
+      );
+      setSidebarWidth(newWidth);
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
   // Loading state
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="text-center">
-          <CalendarIcon className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading...</p>
+          <div className="relative">
+            <CalendarIcon className="h-12 w-12 animate-spin mx-auto mb-4 text-blue-600" />
+            <div className="absolute inset-0 bg-blue-200 blur-xl opacity-20 animate-pulse"></div>
+          </div>
+          <p className="text-slate-600 font-medium">
+            Loading your workspace...
+          </p>
         </div>
       </div>
     );
@@ -134,10 +170,14 @@ export default function Dashboard() {
   // Not authenticated
   if (!session) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <p className="mb-4">You need to be signed in to access this page.</p>
+          <h1 className="text-3xl font-bold mb-4 text-slate-800">
+            Access Denied
+          </h1>
+          <p className="mb-8 text-slate-600">
+            You need to be signed in to access this page.
+          </p>
           <SignInButton />
         </div>
       </div>
@@ -147,21 +187,19 @@ export default function Dashboard() {
   // Error state
   if (calendarsError) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <Header />
-        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          <div className="px-4 py-6 sm:px-0">
-            <div className="text-center py-8">
-              <CalendarIcon className="mx-auto h-12 w-12 mb-4 text-red-400" />
-              <h2 className="text-xl font-bold text-red-600 mb-2">
-                Error Loading Calendars
-              </h2>
-              <p className="text-gray-600">
-                {calendarsError instanceof Error
-                  ? calendarsError.message
-                  : "Failed to load calendars"}
-              </p>
-            </div>
+        <main className="h-[calc(100vh-4rem)] flex items-center justify-center">
+          <div className="text-center py-8">
+            <CalendarIcon className="mx-auto h-16 w-16 mb-6 text-red-400" />
+            <h2 className="text-2xl font-bold text-red-600 mb-4">
+              Error Loading Calendars
+            </h2>
+            <p className="text-slate-600 max-w-md">
+              {calendarsError instanceof Error
+                ? calendarsError.message
+                : "Failed to load calendars"}
+            </p>
           </div>
         </main>
       </div>
@@ -169,13 +207,36 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <Header />
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Controls */}
-            <div className="lg:col-span-1 space-y-6">
+
+      {/* Main Layout */}
+      <div className="flex h-[calc(100vh-4rem)]">
+        {/* Resizable Sidebar */}
+        <div
+          className={`relative bg-white/70 backdrop-blur-sm border-r border-slate-200/60 transition-all duration-300 ease-in-out ${
+            sidebarCollapsed ? "w-0 overflow-hidden" : ""
+          }`}
+          style={{ width: sidebarCollapsed ? 0 : sidebarWidth }}
+        >
+          {/* Sidebar Header */}
+          <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-slate-200/60 px-6 py-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-800">Controls</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="h-8 w-8 p-0"
+              >
+                <PanelLeftClose className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Sidebar Content */}
+          <div className="h-[calc(100%-4rem)] overflow-y-auto">
+            <div className="p-6 space-y-6">
               {/* Calendar Selector */}
               <CalendarSelector
                 calendars={calendars}
@@ -193,17 +254,43 @@ export default function Dashboard() {
               {/* Filter Panel */}
               <FilterPanel filters={filters} onFiltersChange={setFilters} />
             </div>
+          </div>
 
-            {/* Right Column - Results */}
-            <div className="lg:col-span-2">
-              <AvailabilityList
-                slots={availableSlots}
-                loading={calculatingAvailability}
-              />
+          {/* Resize Handle */}
+          {!sidebarCollapsed && (
+            <div
+              className="absolute right-0 top-0 w-1 h-full cursor-col-resize hover:bg-blue-500/20 transition-colors group"
+              onMouseDown={handleMouseDown}
+            >
+              <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-1 h-12 bg-slate-300 group-hover:bg-blue-500 rounded-full transition-colors"></div>
             </div>
+          )}
+        </div>
+
+        {/* Collapsed Sidebar Toggle */}
+        {sidebarCollapsed && (
+          <div className="w-12 bg-white/70 backdrop-blur-sm border-r border-slate-200/60 flex items-start justify-center pt-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSidebarCollapsed(false)}
+              className="h-8 w-8 p-0"
+            >
+              <PanelLeftOpen className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full p-6">
+            <AvailabilityList
+              slots={availableSlots}
+              loading={calculatingAvailability}
+            />
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

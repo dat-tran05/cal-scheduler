@@ -1,16 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AvailableSlot } from "@/types/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Copy,
   Clock,
   Calendar as CalendarIcon,
   CheckCircle,
+  Search,
+  X,
+  Download,
+  Filter,
+  Check,
+  Star,
+  Sparkles,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
@@ -26,6 +34,34 @@ export function AvailabilityList({
   const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
   const [copiedAll, setCopiedAll] = useState(false);
   const [copiedSelected, setCopiedSelected] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"date" | "duration">("date");
+
+  // Filter and sort slots
+  const filteredAndSortedSlots = useMemo(() => {
+    let filtered = slots;
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = slots.filter(
+        (slot) =>
+          slot.dayOfWeek.toLowerCase().includes(query) ||
+          format(parseISO(slot.date), "MMM d").toLowerCase().includes(query) ||
+          slot.startTime.includes(query) ||
+          slot.endTime.includes(query)
+      );
+    }
+
+    // Apply sorting
+    return filtered.sort((a, b) => {
+      if (sortBy === "date") {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      } else {
+        return b.duration - a.duration;
+      }
+    });
+  }, [slots, searchQuery, sortBy]);
 
   const toggleSlot = (slotKey: string) => {
     setSelectedSlots((prev) =>
@@ -33,6 +69,16 @@ export function AvailabilityList({
         ? prev.filter((key) => key !== slotKey)
         : [...prev, slotKey]
     );
+  };
+
+  const selectAll = () => {
+    setSelectedSlots(
+      filteredAndSortedSlots.map((slot) => `${slot.date}-${slot.startTime}`)
+    );
+  };
+
+  const selectNone = () => {
+    setSelectedSlots([]);
   };
 
   const formatSlotText = (slot: AvailableSlot) => {
@@ -65,39 +111,56 @@ export function AvailabilityList({
   };
 
   const copyAllSlots = () => {
-    const text = slots.map(formatSlotText).join("\n");
+    const text = filteredAndSortedSlots.map(formatSlotText).join("\n");
     copyToClipboard(text, "all");
   };
 
   const copySelectedSlots = () => {
-    const selectedSlotsData = slots.filter((slot) =>
+    const selectedSlotsData = filteredAndSortedSlots.filter((slot) =>
       selectedSlots.includes(`${slot.date}-${slot.startTime}`)
     );
     const text = selectedSlotsData.map(formatSlotText).join("\n");
     copyToClipboard(text, "selected");
   };
 
+  const clearSearch = () => {
+    setSearchQuery("");
+  };
+
+  const getDurationColor = (duration: number) => {
+    if (duration >= 180)
+      return "bg-emerald-100 text-emerald-700 border-emerald-200";
+    if (duration >= 120) return "bg-blue-100 text-blue-700 border-blue-200";
+    if (duration >= 60)
+      return "bg-purple-100 text-purple-700 border-purple-200";
+    return "bg-orange-100 text-orange-700 border-orange-200";
+  };
+
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <CalendarIcon className="mr-2 h-5 w-5" />
-            Available Time Slots
+      <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg shadow-slate-200/20 h-full">
+        <CardHeader className="border-b border-slate-100 bg-white/60 backdrop-blur-sm">
+          <CardTitle className="flex items-center text-slate-800">
+            <div className="relative">
+              <CalendarIcon className="mr-3 h-5 w-5 text-blue-600 animate-pulse" />
+              <div className="absolute inset-0 bg-blue-200 blur-xl opacity-20 animate-pulse"></div>
+            </div>
+            <span className="text-lg font-semibold">Available Time Slots</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <div className="space-y-3">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div
                 key={i}
-                className="flex items-center space-x-3 p-3 border rounded-lg"
+                className="flex items-center space-x-3 p-4 border border-slate-100 rounded-xl bg-white/40 backdrop-blur-sm"
               >
-                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-4 bg-slate-200 rounded animate-pulse" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/3 animate-pulse" />
-                  <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse" />
+                  <div className="h-4 bg-slate-200 rounded w-1/3 animate-pulse" />
+                  <div className="h-3 bg-slate-200 rounded w-1/2 animate-pulse" />
                 </div>
+                <div className="h-6 w-16 bg-slate-200 rounded-full animate-pulse" />
               </div>
             ))}
           </div>
@@ -108,19 +171,25 @@ export function AvailabilityList({
 
   if (slots.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <CalendarIcon className="mr-2 h-5 w-5" />
-            Available Time Slots
+      <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg shadow-slate-200/20 h-full">
+        <CardHeader className="border-b border-slate-100 bg-white/60 backdrop-blur-sm">
+          <CardTitle className="flex items-center text-slate-800">
+            <CalendarIcon className="mr-3 h-5 w-5 text-blue-600" />
+            <span className="text-lg font-semibold">Available Time Slots</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-gray-500">
-            <CalendarIcon className="mx-auto h-12 w-12 mb-4 text-gray-300" />
-            <p className="text-lg font-medium mb-2">No available time slots</p>
-            <p className="text-sm">
-              Try adjusting your filters or selecting a different time range.
+        <CardContent className="p-6">
+          <div className="text-center py-12 text-slate-500">
+            <div className="relative mb-6">
+              <CalendarIcon className="mx-auto h-16 w-16 text-slate-300" />
+              <div className="absolute inset-0 bg-slate-200 blur-xl opacity-20"></div>
+            </div>
+            <h3 className="text-xl font-semibold mb-3 text-slate-700">
+              No available time slots
+            </h3>
+            <p className="text-slate-500 max-w-md mx-auto">
+              Try adjusting your filters, selecting different calendars, or
+              choosing a different time range to find available slots.
             </p>
           </div>
         </CardContent>
@@ -129,92 +198,207 @@ export function AvailabilityList({
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="bg-white/80 backdrop-blur-sm border-slate-200/60 shadow-lg shadow-slate-200/20 h-full flex flex-col transition-all duration-200 hover:shadow-xl hover:shadow-slate-200/30">
+      <CardHeader className="border-b border-slate-100 bg-white/60 backdrop-blur-sm flex-shrink-0">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center">
-            <CalendarIcon className="mr-2 h-5 w-5" />
-            Available Time Slots ({slots.length})
+            <div className="relative">
+              <CalendarIcon className="mr-3 h-5 w-5 text-blue-600" />
+              <Sparkles className="absolute -top-1 -right-1 h-3 w-3 text-emerald-500" />
+            </div>
+            <div>
+              <span className="text-lg font-semibold text-slate-800">
+                Available Slots
+              </span>
+              <p className="text-sm font-normal text-slate-500 mt-0.5">
+                {filteredAndSortedSlots.length} of {slots.length} slots
+                {selectedSlots.length > 0 &&
+                  ` • ${selectedSlots.length} selected`}
+              </p>
+            </div>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={copySelectedSlots}
-              disabled={selectedSlots.length === 0}
-            >
-              {copiedSelected ? (
-                <CheckCircle className="mr-1 h-4 w-4" />
-              ) : (
-                <Copy className="mr-1 h-4 w-4" />
-              )}
-              Copy Selected ({selectedSlots.length})
-            </Button>
-            <Button variant="outline" size="sm" onClick={copyAllSlots}>
-              {copiedAll ? (
-                <CheckCircle className="mr-1 h-4 w-4" />
-              ) : (
-                <Copy className="mr-1 h-4 w-4" />
-              )}
-              Copy All
-            </Button>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          {slots.map((slot) => {
-            const slotKey = `${slot.date}-${slot.startTime}`;
-            const isSelected = selectedSlots.includes(slotKey);
-            const date = parseISO(slot.date);
-            const hours = Math.floor(slot.duration / 60);
-            const minutes = slot.duration % 60;
-
-            return (
-              <div
-                key={slotKey}
-                className={`flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors ${
-                  isSelected ? "border-blue-500 bg-blue-50" : ""
-                }`}
-              >
-                <Checkbox
-                  checked={isSelected}
-                  onCheckedChange={() => toggleSlot(slotKey)}
-                />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium">
-                      {format(date, "EEE, MMM d")}
-                    </span>
-                    <Badge variant="secondary" className="text-xs">
-                      {slot.dayOfWeek}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <div className="flex items-center">
-                      <Clock className="mr-1 h-3 w-3" />
-                      {slot.startTime} - {slot.endTime}
-                    </div>
-                    <div className="flex items-center">
-                      <span>
-                        {hours > 0 && `${hours}h`}
-                        {minutes > 0 && `${hours > 0 ? " " : ""}${minutes}m`}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+            {selectedSlots.length > 0 && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copySelectedSlots}
+                  className="h-8 text-xs border-blue-200 text-blue-600 hover:bg-blue-50"
+                >
+                  {copiedSelected ? (
+                    <CheckCircle className="mr-1 h-3 w-3" />
+                  ) : (
+                    <Copy className="mr-1 h-3 w-3" />
+                  )}
+                  Copy Selected
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() =>
-                    copyToClipboard(formatSlotText(slot), "selected")
-                  }
+                  onClick={selectNone}
+                  className="h-8 text-xs text-slate-600 hover:bg-slate-50"
                 >
-                  <Copy className="h-4 w-4" />
+                  <X className="mr-1 h-3 w-3" />
+                  Clear
                 </Button>
-              </div>
-            );
-          })}
+              </>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={
+                filteredAndSortedSlots.length === selectedSlots.length
+                  ? selectNone
+                  : selectAll
+              }
+              className="h-8 text-xs border-slate-200 hover:bg-slate-50"
+            >
+              <Check className="mr-1 h-3 w-3" />
+              {filteredAndSortedSlots.length === selectedSlots.length
+                ? "None"
+                : "All"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={copyAllSlots}
+              className="h-8 text-xs border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+            >
+              {copiedAll ? (
+                <CheckCircle className="mr-1 h-3 w-3" />
+              ) : (
+                <Download className="mr-1 h-3 w-3" />
+              )}
+              Export All
+            </Button>
+          </div>
+        </CardTitle>
+
+        {/* Search and Controls */}
+        <div className="flex gap-3 pt-3">
+          {/* Search */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Search slots..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-10 h-8 bg-white/60 border-slate-200 text-sm focus:border-blue-300 focus:ring-blue-200"
+            />
+            {searchQuery && (
+              <Button
+                onClick={clearSearch}
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-slate-100"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+
+          {/* Sort */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setSortBy(sortBy === "date" ? "duration" : "date")}
+            className="h-8 text-xs border-slate-200 hover:bg-slate-50 whitespace-nowrap"
+          >
+            <Filter className="mr-1 h-3 w-3" />
+            Sort by {sortBy === "date" ? "Duration" : "Date"}
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent className="flex-1 overflow-hidden p-0">
+        <div className="h-full overflow-y-auto p-4">
+          <div className="space-y-2">
+            {filteredAndSortedSlots.map((slot) => {
+              const slotKey = `${slot.date}-${slot.startTime}`;
+              const isSelected = selectedSlots.includes(slotKey);
+              const date = parseISO(slot.date);
+              const hours = Math.floor(slot.duration / 60);
+              const minutes = slot.duration % 60;
+
+              return (
+                <div
+                  key={slotKey}
+                  className={`group flex items-center space-x-3 p-4 rounded-xl border transition-all duration-200 cursor-pointer hover:shadow-md ${
+                    isSelected
+                      ? "border-blue-200 bg-blue-50/50 shadow-sm"
+                      : "border-slate-100 hover:border-slate-200 bg-white/40 backdrop-blur-sm hover:bg-white/60"
+                  }`}
+                  onClick={() => toggleSlot(slotKey)}
+                >
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={() => toggleSlot(slotKey)}
+                    className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                  />
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="font-semibold text-slate-800">
+                        {format(date, "EEE, MMM d")}
+                      </span>
+                      <Badge
+                        variant="secondary"
+                        className="text-xs bg-slate-100 text-slate-600 border-slate-200"
+                      >
+                        {slot.dayOfWeek}
+                      </Badge>
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${getDurationColor(slot.duration)}`}
+                      >
+                        {hours > 0 && `${hours}h`}
+                        {minutes > 0 && `${hours > 0 ? " " : ""}${minutes}m`}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-sm text-slate-600">
+                      <div className="flex items-center">
+                        <Clock className="mr-1.5 h-3.5 w-3.5 text-blue-500" />
+                        <span className="font-medium">
+                          {slot.startTime} - {slot.endTime}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyToClipboard(formatSlotText(slot), "selected");
+                      }}
+                      className="h-8 w-8 p-0 hover:bg-slate-100"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                    {isSelected && (
+                      <div className="flex items-center">
+                        <Star className="h-4 w-4 text-blue-500 fill-current" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Results Footer */}
+          {filteredAndSortedSlots.length > 10 && (
+            <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+              <p className="text-xs text-slate-500">
+                Showing {filteredAndSortedSlots.length} available time slots
+                {searchQuery && ` matching "${searchQuery}"`}
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
