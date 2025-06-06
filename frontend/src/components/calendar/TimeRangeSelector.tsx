@@ -1,144 +1,192 @@
 "use client";
 
-import { useState } from "react";
-import { TimeRange } from "@/types/calendar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Clock, CalendarDays } from "lucide-react";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { DateRange } from "react-day-picker";
 
-interface TimeRangeSelectorProps {
-  selectedRange: TimeRange | null;
-  onRangeChange: (range: TimeRange) => void;
-  predefinedRanges: TimeRange[];
+export interface TimeRange {
+  from: Date;
+  to: Date;
 }
 
-export function TimeRangeSelector({
-  selectedRange,
-  onRangeChange,
-  predefinedRanges,
-}: TimeRangeSelectorProps) {
-  const [customStartDate, setCustomStartDate] = useState<Date>();
-  const [customEndDate, setCustomEndDate] = useState<Date>();
-  const [showCustomPicker, setShowCustomPicker] = useState(false);
+interface TimeRangeSelectorProps {
+  onRangeChange: (range: TimeRange) => void;
+  initialRange?: TimeRange;
+}
 
-  const handleCustomRange = () => {
-    if (customStartDate && customEndDate) {
-      const customRange: TimeRange = {
-        label: `${format(customStartDate, "MMM d")} - ${format(
-          customEndDate,
-          "MMM d"
-        )}`,
-        value: "custom",
-        startDate: customStartDate,
-        endDate: customEndDate,
+const PRESET_RANGES = [
+  {
+    id: "today",
+    label: "Today",
+    getValue: () => {
+      const today = new Date();
+      return {
+        from: today,
+        to: today,
       };
-      onRangeChange(customRange);
-      setShowCustomPicker(false);
+    },
+  },
+  {
+    id: "tomorrow",
+    label: "Tomorrow",
+    getValue: () => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return {
+        from: tomorrow,
+        to: tomorrow,
+      };
+    },
+  },
+  {
+    id: "this-week",
+    label: "This Week",
+    getValue: () => {
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - dayOfWeek);
+      const endOfWeek = new Date(startOfWeek);
+      endOfWeek.setDate(startOfWeek.getDate() + 6);
+      return {
+        from: startOfWeek,
+        to: endOfWeek,
+      };
+    },
+  },
+  {
+    id: "next-week",
+    label: "Next Week",
+    getValue: () => {
+      const today = new Date();
+      const nextWeekStart = new Date(today);
+      nextWeekStart.setDate(today.getDate() + (7 - today.getDay()));
+      const nextWeekEnd = new Date(nextWeekStart);
+      nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
+      return {
+        from: nextWeekStart,
+        to: nextWeekEnd,
+      };
+    },
+  },
+  {
+    id: "next-30-days",
+    label: "Next 30 Days",
+    getValue: () => {
+      const today = new Date();
+      const future = new Date();
+      future.setDate(today.getDate() + 30);
+      return {
+        from: today,
+        to: future,
+      };
+    },
+  },
+];
+
+export function TimeRangeSelector({
+  onRangeChange,
+  initialRange,
+}: TimeRangeSelectorProps) {
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
+  const [currentRange, setCurrentRange] = useState<TimeRange | null>(
+    initialRange || null
+  );
+
+  // Set default range to "next 7 days" if no initial range
+  useEffect(() => {
+    if (!currentRange) {
+      const defaultRange = {
+        from: new Date(),
+        to: (() => {
+          const future = new Date();
+          future.setDate(future.getDate() + 7);
+          return future;
+        })(),
+      };
+      setCurrentRange(defaultRange);
+      onRangeChange(defaultRange);
     }
+  }, [currentRange, onRangeChange]);
+
+  const handlePresetClick = (preset: (typeof PRESET_RANGES)[0]) => {
+    const range = preset.getValue();
+    setSelectedPreset(preset.id);
+    setCurrentRange(range);
+    onRangeChange(range);
+  };
+
+  const handleCustomRangeUpdate = (values: { range: DateRange }) => {
+    if (values.range.from && values.range.to) {
+      const range: TimeRange = {
+        from: values.range.from,
+        to: values.range.to,
+      };
+      setCurrentRange(range);
+      setSelectedPreset(null); // Clear preset selection when custom range is used
+      onRangeChange(range);
+    }
+  };
+
+  const getDayCount = (range: TimeRange) => {
+    const diffTime = Math.abs(range.to.getTime() - range.from.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays;
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <Clock className="mr-2 h-5 w-5" />
-          Select Time Range
-        </CardTitle>
+        <CardTitle className="text-lg">Time Range</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {/* Predefined Ranges */}
+      <CardContent className="space-y-4">
+        {/* Quick Select Buttons */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-muted-foreground">
+            Quick Select
+          </h4>
           <div className="grid grid-cols-2 gap-2">
-            {predefinedRanges.map((range) => (
+            {PRESET_RANGES.map((preset) => (
               <Button
-                key={range.value}
-                variant={
-                  selectedRange?.value === range.value ? "default" : "outline"
-                }
-                onClick={() => onRangeChange(range)}
-                className="justify-start"
+                key={preset.id}
+                variant={selectedPreset === preset.id ? "default" : "outline"}
+                size="sm"
+                onClick={() => handlePresetClick(preset)}
+                className="text-xs h-8"
               >
-                {range.label}
+                {preset.label}
               </Button>
             ))}
           </div>
-
-          {/* Custom Range */}
-          <div className="border-t pt-3">
-            <Popover open={showCustomPicker} onOpenChange={setShowCustomPicker}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={
-                    selectedRange?.value === "custom" ? "default" : "outline"
-                  }
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !customStartDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarDays className="mr-2 h-4 w-4" />
-                  {selectedRange?.value === "custom" &&
-                  customStartDate &&
-                  customEndDate
-                    ? selectedRange.label
-                    : "Custom Range"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <div className="p-4 space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Start Date</label>
-                    <Calendar
-                      mode="single"
-                      selected={customStartDate}
-                      onSelect={setCustomStartDate}
-                      disabled={(date) => date < new Date()}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">End Date</label>
-                    <Calendar
-                      mode="single"
-                      selected={customEndDate}
-                      onSelect={setCustomEndDate}
-                      disabled={(date) =>
-                        date < new Date() ||
-                        (customStartDate ? date < customStartDate : false)
-                      }
-                    />
-                  </div>
-                  <Button
-                    onClick={handleCustomRange}
-                    disabled={!customStartDate || !customEndDate}
-                    className="w-full"
-                  >
-                    Apply Custom Range
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Selected Range Display */}
-          {selectedRange && (
-            <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
-              <strong>Selected:</strong> {selectedRange.label}
-              <br />
-              <span className="text-xs">
-                {format(selectedRange.startDate, "PPP")} -{" "}
-                {format(selectedRange.endDate, "PPP")}
-              </span>
-            </div>
-          )}
         </div>
+
+        {/* Custom Range Picker */}
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-muted-foreground">
+            Custom Range
+          </h4>
+          <DateRangePicker
+            onUpdate={handleCustomRangeUpdate}
+            className="w-full"
+          />
+        </div>
+
+        {/* Selected Range Display */}
+        {currentRange && (
+          <div className="p-3 bg-muted/50 rounded-lg border">
+            <div className="text-sm font-medium">
+              {format(currentRange.from, "MMM d, yyyy")} -{" "}
+              {format(currentRange.to, "MMM d, yyyy")}
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">
+              {getDayCount(currentRange)}{" "}
+              {getDayCount(currentRange) === 1 ? "day" : "days"} selected
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

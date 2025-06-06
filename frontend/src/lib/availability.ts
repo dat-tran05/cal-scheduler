@@ -9,7 +9,6 @@ import {
   format,
   isWeekend,
   startOfDay,
-  endOfDay,
   addMinutes,
   isSameDay,
   parseISO,
@@ -21,11 +20,11 @@ export function calculateAvailability(
   filters: FilterOptions
 ): AvailableSlot[] {
   const availableSlots: AvailableSlot[] = [];
-  const { startDate, endDate } = timeRange;
+  const { from, to } = timeRange;
 
-  let currentDate = startOfDay(startDate);
+  let currentDate = startOfDay(from);
 
-  while (currentDate <= endDate) {
+  while (currentDate <= to) {
     // Skip weekends if weekdays only filter is enabled
     if (filters.weekdaysOnly && isWeekend(currentDate)) {
       currentDate = addDays(currentDate, 1);
@@ -128,42 +127,6 @@ function calculateDayAvailability(
   }
 
   return daySlots;
-}
-
-export function getTimeRangeOptions(): TimeRange[] {
-  const today = new Date();
-  const tomorrow = addDays(today, 1);
-  const thisWeekStart = startOfDay(today);
-  const thisWeekEnd = addDays(thisWeekStart, 6);
-  const nextWeekStart = addDays(thisWeekEnd, 1);
-  const nextWeekEnd = addDays(nextWeekStart, 6);
-
-  return [
-    {
-      label: "Today",
-      value: "today",
-      startDate: startOfDay(today),
-      endDate: endOfDay(today),
-    },
-    {
-      label: "Tomorrow",
-      value: "tomorrow",
-      startDate: startOfDay(tomorrow),
-      endDate: endOfDay(tomorrow),
-    },
-    {
-      label: "This Week",
-      value: "this-week",
-      startDate: thisWeekStart,
-      endDate: thisWeekEnd,
-    },
-    {
-      label: "Next Week",
-      value: "next-week",
-      startDate: nextWeekStart,
-      endDate: nextWeekEnd,
-    },
-  ];
 }
 
 export function getDefaultFilters(): FilterOptions {

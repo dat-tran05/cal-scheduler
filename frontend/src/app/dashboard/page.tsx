@@ -7,7 +7,10 @@ import { useQuery } from "@tanstack/react-query";
 import { SignInButton } from "@/components/auth/SignInButton";
 import { Header } from "@/components/layout/Header";
 import { CalendarSelector } from "@/components/calendar/CalendarSelector";
-import { TimeRangeSelector } from "@/components/calendar/TimeRangeSelector";
+import {
+  TimeRangeSelector,
+  TimeRange,
+} from "@/components/calendar/TimeRangeSelector";
 import { FilterPanel } from "@/components/calendar/FilterPanel";
 import { AvailabilityList } from "@/components/calendar/AvailabilityList";
 import {
@@ -15,48 +18,8 @@ import {
   fetchEventsFromCalendar,
 } from "@/lib/google-calendar";
 import { calculateAvailability } from "@/lib/availability";
-import {
-  CalendarEvent,
-  TimeRange,
-  FilterOptions,
-  AvailableSlot,
-} from "@/types/calendar";
 import { Calendar as CalendarIcon } from "lucide-react";
-import {
-  startOfDay,
-  endOfDay,
-  addDays,
-  startOfWeek,
-  endOfWeek,
-} from "date-fns";
-
-// Predefined time ranges
-const PREDEFINED_RANGES: TimeRange[] = [
-  {
-    label: "Today",
-    value: "today",
-    startDate: startOfDay(new Date()),
-    endDate: endOfDay(new Date()),
-  },
-  {
-    label: "Tomorrow",
-    value: "tomorrow",
-    startDate: startOfDay(addDays(new Date(), 1)),
-    endDate: endOfDay(addDays(new Date(), 1)),
-  },
-  {
-    label: "This Week",
-    value: "thisWeek",
-    startDate: startOfWeek(new Date(), { weekStartsOn: 1 }),
-    endDate: endOfWeek(new Date(), { weekStartsOn: 1 }),
-  },
-  {
-    label: "Next Week",
-    value: "nextWeek",
-    startDate: startOfWeek(addDays(new Date(), 7), { weekStartsOn: 1 }),
-    endDate: endOfWeek(addDays(new Date(), 7), { weekStartsOn: 1 }),
-  },
-];
+import { FilterOptions, AvailableSlot, CalendarEvent } from "@/types/calendar";
 
 // Default filters
 const DEFAULT_FILTERS: FilterOptions = {
@@ -74,9 +37,7 @@ export default function Dashboard() {
 
   // State
   const [selectedCalendarIds, setSelectedCalendarIds] = useState<string[]>([]);
-  const [selectedRange, setSelectedRange] = useState<TimeRange | null>(
-    PREDEFINED_RANGES[0]
-  );
+  const [selectedRange, setSelectedRange] = useState<TimeRange | null>(null);
   const [filters, setFilters] = useState<FilterOptions>(DEFAULT_FILTERS);
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
   const [calculatingAvailability, setCalculatingAvailability] = useState(false);
@@ -122,8 +83,8 @@ export default function Dashboard() {
         const events = await fetchEventsFromCalendar(
           session.accessToken,
           calendarId,
-          selectedRange.startDate.toISOString(),
-          selectedRange.endDate.toISOString()
+          selectedRange.from.toISOString(),
+          selectedRange.to.toISOString()
         );
         allEvents.push(...events);
       }
@@ -210,7 +171,6 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
-
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -226,9 +186,8 @@ export default function Dashboard() {
 
               {/* Time Range Selector */}
               <TimeRangeSelector
-                selectedRange={selectedRange}
                 onRangeChange={setSelectedRange}
-                predefinedRanges={PREDEFINED_RANGES}
+                initialRange={selectedRange || undefined}
               />
 
               {/* Filter Panel */}

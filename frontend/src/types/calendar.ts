@@ -47,10 +47,8 @@ export interface AvailableSlot {
 }
 
 export interface TimeRange {
-  label: string;
-  value: string;
-  startDate: Date;
-  endDate: Date;
+  from: Date;
+  to: Date;
 }
 
 export interface FilterOptions {
