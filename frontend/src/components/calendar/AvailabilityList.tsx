@@ -19,6 +19,7 @@ import {
   Check,
   Star,
   Sparkles,
+  Clock12,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
@@ -36,6 +37,20 @@ export function AvailabilityList({
   const [copiedSelected, setCopiedSelected] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"date" | "duration">("date");
+  const [use24HourFormat, setUse24HourFormat] = useState(false);
+
+  // Helper function to format time based on user preference
+  const formatTime = (timeString: string) => {
+    if (use24HourFormat) {
+      return timeString; // Keep original 24-hour format
+    }
+
+    // Convert to 12-hour format with AM/PM
+    const [hours, minutes] = timeString.split(":").map(Number);
+    const period = hours >= 12 ? "PM" : "AM";
+    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    return `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+  };
 
   // Filter and sort slots
   const filteredAndSortedSlots = useMemo(() => {
@@ -98,9 +113,9 @@ export function AvailabilityList({
         .formatToParts(new Date())
         .find((part) => part.type === "timeZoneName")?.value || "Local";
 
-    return `${format(date, "EEE, MMM d")} • ${slot.startTime} - ${
-      slot.endTime
-    } (${durationText}) [${userTimezone}]`;
+    return `${format(date, "EEE, MMM d")} • ${formatTime(
+      slot.startTime
+    )} - ${formatTime(slot.endTime)} (${durationText}) [${userTimezone}]`;
   };
 
   const copyToClipboard = async (text: string, type: "all" | "selected") => {
@@ -306,6 +321,17 @@ export function AvailabilityList({
             )}
           </div>
 
+          {/* Time Format Toggle */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setUse24HourFormat(!use24HourFormat)}
+            className="h-10 lg:h-8 text-sm lg:text-xs border-slate-200 hover:bg-slate-50 whitespace-nowrap touch-manipulation"
+          >
+            <Clock12 className="mr-1 h-4 w-4 lg:h-3 lg:w-3" />
+            {use24HourFormat ? "12h" : "24h"}
+          </Button>
+
           {/* Sort */}
           <Button
             variant="outline"
@@ -372,7 +398,8 @@ export function AvailabilityList({
                         <div className="flex items-center">
                           <Clock className="mr-1.5 h-4 w-4 sm:h-3.5 sm:w-3.5 text-blue-500" />
                           <span className="font-medium text-base sm:text-sm">
-                            {slot.startTime} - {slot.endTime}
+                            {formatTime(slot.startTime)} -{" "}
+                            {formatTime(slot.endTime)}
                           </span>
                         </div>
                       </div>
