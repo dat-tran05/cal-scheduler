@@ -90,9 +90,17 @@ export function AvailabilityList({
         ? `${hours}h${minutes > 0 ? ` ${minutes}m` : ""}`
         : `${minutes}m`;
 
+    // Get the user's current timezone abbreviation (e.g., EST, PST, UTC)
+    const userTimezone =
+      new Intl.DateTimeFormat("en", {
+        timeZoneName: "short",
+      })
+        .formatToParts(new Date())
+        .find((part) => part.type === "timeZoneName")?.value || "Local";
+
     return `${format(date, "EEE, MMM d")} • ${slot.startTime} - ${
       slot.endTime
-    } (${durationText})`;
+    } (${durationText}) [${userTimezone}]`;
   };
 
   const copyToClipboard = async (text: string, type: "all" | "selected") => {
