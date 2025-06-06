@@ -236,7 +236,7 @@ export default function Dashboard() {
 
           {/* Sidebar Content */}
           <div className="h-[calc(100%-4rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
-            <div className="p-6 space-y-6">
+            <div className="p-6 pb-12 space-y-6">
               {/* Calendar Selector */}
               <CalendarSelector
                 calendars={calendars}
@@ -282,7 +282,7 @@ export default function Dashboard() {
         )}
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-hidden bg-white/50 backdrop-blur-sm">
+        <div className="flex-1 overflow-hidden bg-white/50 backdrop-blur-sm pb-4">
           <div className="h-full p-6 overflow-hidden">
             <AvailabilityList
               slots={availableSlots}
