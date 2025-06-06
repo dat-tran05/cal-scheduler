@@ -200,7 +200,7 @@ export function AvailabilityList({
   return (
     <Card className="bg-white/95 backdrop-blur-md border-2 border-slate-300/70 shadow-xl shadow-slate-200/30 h-full flex flex-col transition-all duration-200 hover:shadow-2xl hover:shadow-slate-200/40">
       <CardHeader className="border-b-2 border-slate-200/80 bg-white/80 backdrop-blur-md flex-shrink-0">
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center">
             <div className="flex items-center mr-3">
               <CalendarIcon className="h-5 w-5 text-blue-600" />
@@ -217,19 +217,19 @@ export function AvailabilityList({
               </p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {selectedSlots.length > 0 && (
               <>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={copySelectedSlots}
-                  className="h-8 text-xs border-blue-200 text-blue-600 hover:bg-blue-50"
+                  className="h-9 lg:h-8 text-sm lg:text-xs border-blue-200 text-blue-600 hover:bg-blue-50 touch-manipulation"
                 >
                   {copiedSelected ? (
-                    <CheckCircle className="mr-1 h-3 w-3" />
+                    <CheckCircle className="mr-1 h-4 w-4 lg:h-3 lg:w-3" />
                   ) : (
-                    <Copy className="mr-1 h-3 w-3" />
+                    <Copy className="mr-1 h-4 w-4 lg:h-3 lg:w-3" />
                   )}
                   Copy Selected
                 </Button>
@@ -237,9 +237,9 @@ export function AvailabilityList({
                   variant="ghost"
                   size="sm"
                   onClick={selectNone}
-                  className="h-8 text-xs text-slate-600 hover:bg-slate-50"
+                  className="h-9 lg:h-8 text-sm lg:text-xs text-slate-600 hover:bg-slate-50 touch-manipulation"
                 >
-                  <X className="mr-1 h-3 w-3" />
+                  <X className="mr-1 h-4 w-4 lg:h-3 lg:w-3" />
                   Clear
                 </Button>
               </>
@@ -252,9 +252,9 @@ export function AvailabilityList({
                   ? selectNone
                   : selectAll
               }
-              className="h-8 text-xs border-slate-200 hover:bg-slate-50"
+              className="h-9 lg:h-8 text-sm lg:text-xs border-slate-200 hover:bg-slate-50 touch-manipulation"
             >
-              <Check className="mr-1 h-3 w-3" />
+              <Check className="mr-1 h-4 w-4 lg:h-3 lg:w-3" />
               {filteredAndSortedSlots.length === selectedSlots.length
                 ? "None"
                 : "All"}
@@ -263,12 +263,12 @@ export function AvailabilityList({
               variant="outline"
               size="sm"
               onClick={copyAllSlots}
-              className="h-8 text-xs border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+              className="h-9 lg:h-8 text-sm lg:text-xs border-emerald-200 text-emerald-600 hover:bg-emerald-50 touch-manipulation"
             >
               {copiedAll ? (
-                <CheckCircle className="mr-1 h-3 w-3" />
+                <CheckCircle className="mr-1 h-4 w-4 lg:h-3 lg:w-3" />
               ) : (
-                <Download className="mr-1 h-3 w-3" />
+                <Download className="mr-1 h-4 w-4 lg:h-3 lg:w-3" />
               )}
               Export All
             </Button>
@@ -276,7 +276,7 @@ export function AvailabilityList({
         </CardTitle>
 
         {/* Search and Controls */}
-        <div className="flex gap-3 pt-3">
+        <div className="flex flex-col sm:flex-row gap-3 py-3">
           {/* Search */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -284,16 +284,16 @@ export function AvailabilityList({
               placeholder="Search slots..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-10 h-8 bg-white/60 border-slate-200 text-sm focus:border-blue-300 focus:ring-blue-200"
+              className="pl-10 pr-10 h-10 lg:h-8 bg-white/60 border-slate-200 text-sm focus:border-blue-300 focus:ring-blue-200"
             />
             {searchQuery && (
               <Button
                 onClick={clearSearch}
                 variant="ghost"
                 size="sm"
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-slate-100"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 lg:h-6 lg:w-6 p-0 hover:bg-slate-100 touch-manipulation"
               >
-                <X className="h-3 w-3" />
+                <X className="h-4 w-4 lg:h-3 lg:w-3" />
               </Button>
             )}
           </div>
@@ -303,17 +303,17 @@ export function AvailabilityList({
             variant="outline"
             size="sm"
             onClick={() => setSortBy(sortBy === "date" ? "duration" : "date")}
-            className="h-8 text-xs border-slate-200 hover:bg-slate-50 whitespace-nowrap"
+            className="h-10 lg:h-8 text-sm lg:text-xs border-slate-200 hover:bg-slate-50 whitespace-nowrap touch-manipulation"
           >
-            <Filter className="mr-1 h-3 w-3" />
+            <Filter className="mr-1 h-4 w-4 lg:h-3 lg:w-3" />
             Sort by {sortBy === "date" ? "Duration" : "Date"}
           </Button>
         </div>
       </CardHeader>
 
       <CardContent className="flex-1 overflow-hidden p-0">
-        <div className="h-full overflow-y-auto p-4 pb-12 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400">
-          <div className="space-y-2">
+        <div className="h-full overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400">
+          <div className="space-y-3">
             {filteredAndSortedSlots.map((slot) => {
               const slotKey = `${slot.date}-${slot.startTime}`;
               const isSelected = selectedSlots.includes(slotKey);
@@ -324,64 +324,70 @@ export function AvailabilityList({
               return (
                 <div
                   key={slotKey}
-                  className={`group flex items-center space-x-3 p-4 rounded-xl border transition-all duration-200 cursor-pointer hover:shadow-md ${
+                  className={`group flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-3 p-4 rounded-xl border transition-all duration-200 cursor-pointer active:scale-[0.98] sm:active:scale-100 hover:shadow-md touch-manipulation ${
                     isSelected
                       ? "border-blue-200 bg-blue-50/50 shadow-sm"
                       : "border-slate-100 hover:border-slate-200 bg-white/40 backdrop-blur-sm hover:bg-white/60"
                   }`}
                   onClick={() => toggleSlot(slotKey)}
                 >
-                  <Checkbox
-                    checked={isSelected}
-                    onCheckedChange={() => toggleSlot(slotKey)}
-                    className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                  />
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => toggleSlot(slotKey)}
+                      className="h-5 w-5 sm:h-4 sm:w-4 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 touch-manipulation"
+                    />
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="font-semibold text-slate-800">
-                        {format(date, "EEE, MMM d")}
-                      </span>
-                      <Badge
-                        variant="secondary"
-                        className="text-xs bg-slate-100 text-slate-600 border-slate-200"
-                      >
-                        {slot.dayOfWeek}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${getDurationColor(slot.duration)}`}
-                      >
-                        {hours > 0 && `${hours}h`}
-                        {minutes > 0 && `${hours > 0 ? " " : ""}${minutes}m`}
-                      </Badge>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-sm text-slate-600">
-                      <div className="flex items-center">
-                        <Clock className="mr-1.5 h-3.5 w-3.5 text-blue-500" />
-                        <span className="font-medium">
-                          {slot.startTime} - {slot.endTime}
+                    <div className="flex-1 min-w-0 sm:min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className="font-semibold text-slate-800 text-base sm:text-sm">
+                          {format(date, "EEE, MMM d")}
                         </span>
+                        <Badge
+                          variant="secondary"
+                          className="text-sm sm:text-xs bg-slate-100 text-slate-600 border-slate-200"
+                        >
+                          {slot.dayOfWeek}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className={`text-sm sm:text-xs ${getDurationColor(
+                            slot.duration
+                          )}`}
+                        >
+                          {hours > 0 && `${hours}h`}
+                          {minutes > 0 && `${hours > 0 ? " " : ""}${minutes}m`}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center gap-4 text-sm text-slate-600">
+                        <div className="flex items-center">
+                          <Clock className="mr-1.5 h-4 w-4 sm:h-3.5 sm:w-3.5 text-blue-500" />
+                          <span className="font-medium text-base sm:text-sm">
+                            {slot.startTime} - {slot.endTime}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        copyToClipboard(formatSlotText(slot), "selected");
-                      }}
-                      className="h-8 w-8 p-0 hover:bg-slate-100"
-                    >
-                      <Copy className="h-3 w-3" />
-                    </Button>
+                  <div className="flex items-center justify-between w-full sm:w-auto sm:justify-end gap-2 mt-2 sm:mt-0">
+                    <div className="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          copyToClipboard(formatSlotText(slot), "selected");
+                        }}
+                        className="h-9 w-9 sm:h-8 sm:w-8 p-0 hover:bg-slate-100 touch-manipulation"
+                      >
+                        <Copy className="h-4 w-4 sm:h-3 sm:w-3" />
+                      </Button>
+                    </div>
                     {isSelected && (
                       <div className="flex items-center">
-                        <Star className="h-4 w-4 text-blue-500 fill-current" />
+                        <Star className="h-5 w-5 sm:h-4 sm:w-4 text-blue-500 fill-current" />
                       </div>
                     )}
                   </div>

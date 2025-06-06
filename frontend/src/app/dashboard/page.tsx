@@ -22,6 +22,8 @@ import {
   Calendar as CalendarIcon,
   PanelLeftClose,
   PanelLeftOpen,
+  X,
+  Filter,
 } from "lucide-react";
 import { FilterOptions, AvailableSlot, CalendarEvent } from "@/types/calendar";
 import { Button } from "@/components/ui/button";
@@ -43,6 +45,7 @@ export default function Dashboard() {
   // Layout state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(384); // 24rem default
+  const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
 
   // State
   const [selectedCalendarIds, setSelectedCalendarIds] = useState<string[]>([]);
@@ -211,32 +214,58 @@ export default function Dashboard() {
       <Header />
 
       {/* Main Layout */}
-      <div className="flex h-[calc(100vh-4rem)]">
-        {/* Resizable Sidebar */}
+      <div className="lg:flex h-[calc(100vh-4rem)]">
+        {/* Mobile Controls Panel - Full screen overlay on mobile */}
         <div
-          className={`relative bg-white/90 backdrop-blur-md border-r-2 border-slate-300/80 shadow-xl transition-all duration-300 ease-in-out ${
-            sidebarCollapsed ? "w-0 overflow-hidden" : ""
-          }`}
-          style={{ width: sidebarCollapsed ? 0 : sidebarWidth }}
+          className={`
+            fixed inset-0 z-50 bg-white/95 backdrop-blur-md lg:relative lg:z-auto lg:bg-white/90
+            ${
+              isMobileControlsOpen
+                ? "translate-x-0"
+                : "-translate-x-full lg:translate-x-0"
+            }
+            transition-transform duration-300 ease-in-out
+            lg:border-r-2 lg:border-slate-300/80 lg:shadow-xl
+            ${sidebarCollapsed ? "lg:w-0 lg:overflow-hidden" : ""}
+          `}
+          style={{
+            width: sidebarCollapsed
+              ? 0
+              : window.innerWidth >= 1024
+              ? sidebarWidth
+              : "100%",
+          }}
         >
-          {/* Sidebar Header */}
-          <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b-2 border-slate-300/60 px-6 py-4 shadow-sm">
+          {/* Mobile Header */}
+          <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b-2 border-slate-300/60 px-4 lg:px-6 py-4 shadow-sm">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-slate-800">Controls</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="h-8 w-8 p-0 hover:bg-slate-200/60"
-              >
-                <PanelLeftClose className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-2">
+                {/* Mobile Close Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsMobileControlsOpen(false)}
+                  className="h-8 w-8 p-0 hover:bg-slate-200/60 lg:hidden"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+                {/* Desktop Collapse Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                  className="h-8 w-8 p-0 hover:bg-slate-200/60 hidden lg:flex"
+                >
+                  <PanelLeftClose className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Sidebar Content */}
+          {/* Controls Content */}
           <div className="h-[calc(100%-4rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
-            <div className="p-6 pb-12 space-y-6">
+            <div className="p-4 lg:p-6 pb-12 space-y-6">
               {/* Calendar Selector */}
               <CalendarSelector
                 calendars={calendars}
@@ -256,10 +285,10 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Resize Handle */}
+          {/* Resize Handle - Desktop Only */}
           {!sidebarCollapsed && (
             <div
-              className="absolute right-0 top-0 w-1 h-full cursor-col-resize hover:bg-blue-500/20 transition-colors group"
+              className="absolute right-0 top-0 w-1 h-full cursor-col-resize hover:bg-blue-500/20 transition-colors group hidden lg:block"
               onMouseDown={handleMouseDown}
             >
               <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-1 h-12 bg-slate-300 group-hover:bg-blue-500 rounded-full transition-colors"></div>
@@ -267,9 +296,26 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Collapsed Sidebar Toggle */}
+        {/* Mobile Controls Toggle Button */}
+        <Button
+          onClick={() => setIsMobileControlsOpen(true)}
+          className="fixed bottom-4 left-4 z-40 lg:hidden rounded-full bg-blue-600 hover:bg-blue-700 p-3 shadow-lg touch-manipulation"
+          size="sm"
+        >
+          <Filter className="h-6 w-6 text-white" />
+        </Button>
+
+        {/* Mobile Overlay */}
+        {isMobileControlsOpen && (
+          <div
+            className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+            onClick={() => setIsMobileControlsOpen(false)}
+          />
+        )}
+
+        {/* Collapsed Sidebar Toggle - Desktop Only */}
         {sidebarCollapsed && (
-          <div className="w-12 bg-white/95 backdrop-blur-md border-r-2 border-slate-300/80 shadow-lg flex items-start justify-center pt-4">
+          <div className="w-12 bg-white/95 backdrop-blur-md border-r-2 border-slate-300/80 shadow-lg items-start justify-center pt-4 hidden lg:flex">
             <Button
               variant="ghost"
               size="sm"
@@ -282,8 +328,8 @@ export default function Dashboard() {
         )}
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-hidden bg-white/50 backdrop-blur-sm pb-4">
-          <div className="h-full p-6 overflow-hidden">
+        <div className="flex-1 overflow-hidden bg-white/50 backdrop-blur-sm">
+          <div className="h-full p-3 lg:p-6 overflow-hidden">
             <AvailabilityList
               slots={availableSlots}
               loading={calculatingAvailability}

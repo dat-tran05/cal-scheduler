@@ -170,32 +170,23 @@ export function TimeRangeSelector({
             <Zap className="h-4 w-4 text-blue-600" />
             <h4 className="text-sm font-medium text-slate-700">Quick Select</h4>
           </div>
-          <div className="grid grid-cols-1 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {PRESET_RANGES.map((preset) => (
               <Button
-                key={preset.id}
+                key={preset.label}
                 variant="outline"
                 onClick={() => handlePresetClick(preset)}
-                className={`justify-start h-auto p-3 text-left transition-all duration-200 ${
-                  selectedPreset === preset.id
-                    ? preset.color
-                    : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
-                }`}
+                className="p-4 lg:p-3 h-auto flex flex-col items-center text-center hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 touch-manipulation"
               >
-                <span className="text-lg mr-3">{preset.icon}</span>
-                <div className="flex-1">
-                  <div className="font-medium text-sm">{preset.label}</div>
-                  <div className="text-xs opacity-75">
-                    {preset.id === "today" || preset.id === "tomorrow"
-                      ? "Single day"
-                      : `${getDayCount(preset.getValue())} days`}
-                  </div>
-                </div>
-                {selectedPreset === preset.id && (
-                  <Badge variant="secondary" className="ml-auto text-xs">
-                    Active
-                  </Badge>
-                )}
+                <span className="text-xl lg:text-lg mb-2">{preset.icon}</span>
+                <span className="font-medium text-base lg:text-sm text-slate-800">
+                  {preset.label}
+                </span>
+                <span className="text-sm lg:text-xs text-slate-500 mt-1">
+                  {preset.id === "today" || preset.id === "tomorrow"
+                    ? "Single day"
+                    : `${getDayCount(preset.getValue())} days`}
+                </span>
               </Button>
             ))}
           </div>

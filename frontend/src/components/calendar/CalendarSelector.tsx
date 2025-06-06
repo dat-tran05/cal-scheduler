@@ -7,14 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Calendar as CalendarIcon,
-  Users,
-  User,
-  Search,
-  Check,
-  X,
-} from "lucide-react";
+import { CalendarIcon, Search, X, Check } from "lucide-react";
 
 interface CalendarSelectorProps {
   calendars: Calendar[];
@@ -88,36 +81,30 @@ export function CalendarSelector({
   return (
     <Card className="bg-white/95 backdrop-blur-md border-2 border-slate-300/70 shadow-xl shadow-slate-200/30 transition-all duration-200 hover:shadow-2xl hover:shadow-slate-200/40 hover:border-slate-400/80">
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center">
             <CalendarIcon className="mr-3 h-5 w-5 text-blue-600" />
-            <div>
-              <span className="text-lg font-semibold text-slate-800">
-                Calendars
-              </span>
-              <p className="text-sm font-normal text-slate-500 mt-0.5">
-                {selectedCalendarIds.length} of {filteredCalendars.length}{" "}
-                selected
-              </p>
-            </div>
+            <span className="text-lg font-semibold text-slate-800">
+              Calendars
+            </span>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             <Button
-              onClick={selectAll}
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="h-8 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              onClick={selectAll}
+              className="h-9 lg:h-8 px-3 lg:px-2 text-sm lg:text-xs touch-manipulation"
             >
-              <Check className="h-3 w-3 mr-1" />
+              <Check className="mr-1 h-4 w-4" />
               All
             </Button>
             <Button
-              onClick={selectNone}
-              variant="ghost"
+              variant="outline"
               size="sm"
-              className="h-8 px-2 text-xs text-slate-600 hover:text-slate-700 hover:bg-slate-50"
+              onClick={selectNone}
+              className="h-9 lg:h-8 px-3 lg:px-2 text-sm lg:text-xs touch-manipulation"
             >
-              <X className="h-3 w-3 mr-1" />
+              <X className="mr-1 h-4 w-4" />
               None
             </Button>
           </div>
@@ -148,77 +135,67 @@ export function CalendarSelector({
         )}
 
         {/* Calendar List */}
-        <div className="space-y-2 max-h-64 overflow-y-auto">
-          {filteredCalendars.length === 0 ? (
-            <div className="text-center py-6 text-slate-500">
-              <CalendarIcon className="mx-auto h-8 w-8 mb-2 text-slate-300" />
-              <p className="text-sm">
-                {searchQuery
-                  ? "No calendars match your search"
-                  : "No calendars found"}
-              </p>
-            </div>
-          ) : (
-            filteredCalendars.map((calendar) => {
-              const isSelected = selectedCalendarIds.includes(calendar.id);
-              return (
-                <div
-                  key={calendar.id}
-                  className={`group flex items-center space-x-3 p-3 rounded-lg border transition-all duration-200 cursor-pointer ${
-                    isSelected
-                      ? "border-blue-200 bg-blue-50/50 shadow-sm"
-                      : "border-slate-100 hover:border-slate-200 hover:bg-slate-50/50"
-                  }`}
-                  onClick={() => toggleCalendar(calendar.id)}
-                >
+        <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent hover:scrollbar-thumb-slate-400 border border-slate-100 rounded-lg bg-slate-50/30">
+          <div className="space-y-2 p-3">
+            {filteredCalendars.map((calendar) => (
+              <div
+                key={calendar.id}
+                className="flex items-center gap-3 p-3 border border-slate-100 rounded-lg bg-white/60 backdrop-blur-sm hover:bg-white/80 hover:border-slate-200 transition-all duration-200 touch-manipulation cursor-pointer"
+                onClick={() => toggleCalendar(calendar.id)}
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
                   <Checkbox
-                    checked={isSelected}
+                    checked={selectedCalendarIds.includes(calendar.id)}
                     onCheckedChange={() => toggleCalendar(calendar.id)}
-                    className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                    className="h-5 w-5 lg:h-4 lg:w-4 touch-manipulation flex-shrink-0"
+                    style={{
+                      accentColor: calendar.backgroundColor || "#3b82f6",
+                    }}
                   />
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      {calendar.primary ? (
-                        <User className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                      ) : (
-                        <Users className="h-4 w-4 text-slate-500 flex-shrink-0" />
-                      )}
-                      <span className="font-medium text-slate-800 truncate">
-                        {calendar.summary}
-                      </span>
-                      {calendar.primary && (
-                        <Badge
-                          variant="secondary"
-                          className="text-xs bg-blue-100 text-blue-700 border-blue-200"
-                        >
-                          Primary
-                        </Badge>
-                      )}
-                    </div>
-
+                  <div
+                    className="w-4 h-4 rounded-full border-2 border-white shadow-sm flex-shrink-0"
+                    style={{
+                      backgroundColor: calendar.backgroundColor || "#3b82f6",
+                    }}
+                  />
+                  <div className="flex-1 min-w-0 mr-3">
+                    <h4 className="font-medium text-slate-800 text-base sm:text-sm truncate">
+                      {calendar.summary}
+                    </h4>
                     {calendar.description && (
-                      <p className="text-sm text-slate-500 truncate">
+                      <p className="text-sm text-slate-500 truncate max-w-[200px] sm:max-w-[250px] mt-0.5">
                         {calendar.description}
                       </p>
                     )}
-
-                    <p className="text-xs text-slate-400 capitalize mt-1">
-                      {calendar.accessRole}
-                    </p>
                   </div>
-
-                  {calendar.backgroundColor && (
-                    <div
-                      className="w-4 h-4 rounded-full border-2 border-white shadow-sm flex-shrink-0"
-                      style={{ backgroundColor: calendar.backgroundColor }}
-                    />
-                  )}
                 </div>
-              );
-            })
-          )}
+
+                <div className="flex items-center gap-2 text-sm text-slate-500 flex-shrink-0">
+                  {calendar.primary && (
+                    <Badge
+                      variant="secondary"
+                      className="text-xs bg-blue-100 text-blue-700 border-blue-200"
+                    >
+                      Primary
+                    </Badge>
+                  )}
+                  <span className="text-xs hidden sm:inline">
+                    {calendar.accessRole}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* No Results */}
+        {filteredCalendars.length === 0 && searchQuery && (
+          <div className="text-center py-6 text-slate-500">
+            <p className="text-sm">
+              No calendars found matching &ldquo;{searchQuery}&rdquo;
+            </p>
+          </div>
+        )}
 
         {/* Summary */}
         {selectedCalendarIds.length > 0 && (
