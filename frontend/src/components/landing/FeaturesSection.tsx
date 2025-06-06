@@ -1,14 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  Calendar,
-  Clock,
-  Filter,
-  Share2,
-  CheckCircle,
-  Zap,
-} from "lucide-react";
+import { Calendar, Clock, Filter, Share2, Zap } from "lucide-react";
 import {
   Card,
   CardContent,

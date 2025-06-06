@@ -3,9 +3,8 @@
 import { motion } from "framer-motion";
 import { Pacifico } from "next/font/google";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { SignInButton } from "@/components/auth/SignInButton";
-import { Calendar, ArrowRight } from "lucide-react";
+import { Calendar } from "lucide-react";
 
 const pacifico = Pacifico({
   subsets: ["latin"],
