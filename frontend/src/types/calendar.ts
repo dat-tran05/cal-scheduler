@@ -60,6 +60,24 @@ export interface FilterOptions {
   bufferTime: number; // in minutes
 }
 
+export interface FilterValidationWarning {
+  type: "conflict" | "suggestion" | "info";
+  field: keyof FilterOptions | "general";
+  message: string;
+  suggestedFix?: Partial<FilterOptions>;
+}
+
+export interface FilterValidationResult {
+  isValid: boolean;
+  warnings: FilterValidationWarning[];
+  resolvedFilters: FilterOptions;
+  effectiveTimeRange: {
+    startHour: number;
+    endHour: number;
+    duration: number; // in hours
+  };
+}
+
 export interface CalendarListResponse {
   kind: string;
   etag: string;

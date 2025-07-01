@@ -17,7 +17,7 @@ import {
   fetchAllCalendars,
   fetchEventsFromCalendar,
 } from "@/lib/google-calendar";
-import { calculateAvailability } from "@/lib/availability";
+import { calculateAvailability, validateFilters } from "@/lib/availability";
 import {
   Calendar as CalendarIcon,
   PanelLeftClose,
@@ -25,10 +25,15 @@ import {
   X,
   Filter,
 } from "lucide-react";
-import { FilterOptions, AvailableSlot, CalendarEvent } from "@/types/calendar";
+import {
+  FilterOptions,
+  AvailableSlot,
+  CalendarEvent,
+  FilterValidationResult,
+} from "@/types/calendar";
 import { Button } from "@/components/ui/button";
 
-// Default filters
+// Default filters - now consistent with validation system
 const DEFAULT_FILTERS: FilterOptions = {
   businessHoursOnly: true,
   weekdaysOnly: false,
@@ -51,6 +56,8 @@ export default function Dashboard() {
   const [selectedCalendarIds, setSelectedCalendarIds] = useState<string[]>([]);
   const [selectedRange, setSelectedRange] = useState<TimeRange | null>(null);
   const [filters, setFilters] = useState<FilterOptions>(DEFAULT_FILTERS);
+  const [filterValidation, setFilterValidation] =
+    useState<FilterValidationResult>(validateFilters(DEFAULT_FILTERS));
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
   const [calculatingAvailability, setCalculatingAvailability] = useState(false);
 
@@ -81,6 +88,12 @@ export default function Dashboard() {
       }
     }
   }, [calendars, selectedCalendarIds.length]);
+
+  // Update filter validation when filters change
+  useEffect(() => {
+    const validation = validateFilters(filters);
+    setFilterValidation(validation);
+  }, [filters]);
 
   // Calculate availability when dependencies change
   const calculateAvailabilitySlots = useCallback(async () => {
@@ -329,6 +342,30 @@ export default function Dashboard() {
 
         {/* Main Content Area */}
         <div className="flex-1 overflow-hidden bg-white/50 backdrop-blur-sm">
+          {/* Global Filter Warnings */}
+          {filterValidation.warnings.length > 0 && (
+            <div className="p-3 lg:p-6 pb-0">
+              <div className="mb-4 p-3 rounded-lg bg-amber-50 border border-amber-200">
+                <div className="flex items-start gap-2">
+                  <Filter className="h-4 w-4 text-amber-600 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-900 mb-1">
+                      Filter Configuration Issues
+                    </p>
+                    <ul className="text-xs text-amber-800 space-y-1">
+                      {filterValidation.warnings.map((warning, index) => (
+                        <li key={index}>• {warning.message}</li>
+                      ))}
+                    </ul>
+                    <p className="text-xs text-amber-700 mt-2">
+                      Check the Filters panel for detailed options and fixes.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="h-full p-3 lg:p-6 overflow-hidden">
             <AvailabilityList
               slots={availableSlots}
