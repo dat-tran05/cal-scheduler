@@ -49,7 +49,7 @@ export default function Dashboard() {
 
   // Layout state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState(384); // 24rem default
+  const [sidebarWidth, setSidebarWidth] = useState(560); // ~40% of screen width default
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
 
   // State
@@ -152,7 +152,7 @@ export default function Dashboard() {
     const handleMouseMove = (e: MouseEvent) => {
       const newWidth = Math.max(
         320,
-        Math.min(600, startWidth + e.clientX - startX)
+        Math.min(800, startWidth + e.clientX - startX)
       );
       setSidebarWidth(newWidth);
     };
